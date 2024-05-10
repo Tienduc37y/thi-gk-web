@@ -1,17 +1,29 @@
 <?php
 session_start();
-require_once '/workspaces/thi-gk-web/Controller/checkLogin.php';
-
 if(!isset($_SESSION["loggedin"]) || $_SESSION["loggedin"] !== true){
-    header("location: index.php");
+    header("location: ../index.php");
     exit;
 }
+$uri = "mysql://avnadmin:AVNS_xbVrhrJSx5H_CJBHpNR@mysql-331c3b88-laitienduc37-403a.f.aivencloud.com:11046/defaultdb?ssl-mode=REQUIRED";
 
-// Lấy dữ liệu sách từ cơ sở dữ liệu
-$sql = "SELECT * FROM sach LIMIT 5";
-$result = $db->query($sql);
+$fields = parse_url($uri);
+
+// build the DSN including SSL settings
+$conn = "mysql:";
+$conn .= "host=" . $fields["host"];
+$conn .= ";port=" . $fields["port"];;
+$conn .= ";dbname=QuanLySach";
+$conn .= ";sslmode=verify-ca;sslrootcert='pri/ca.pem'";
+
+try {
+    $db = new PDO($conn, $fields["user"], $fields["pass"]);
+        $sql = "SELECT * FROM Sach LIMIT 5";
+        $stmt = $db->query($sql);
+        $books = $stmt->fetchAll(PDO::FETCH_ASSOC);
+} catch (Exception $e) {
+    echo "Error: " . $e->getMessage();
+}
 ?>
-
 <!DOCTYPE html>
 <html lang="en">
 <head>
@@ -43,20 +55,16 @@ $result = $db->query($sql);
             <th>Số Lượng</th>
         </tr>
         <?php
-        if ($result->num_rows > 0) {
-            while($row = $result->fetch_assoc()) {
+            foreach ($books as $book){
                 echo "<tr>";
-                echo "<td>" . $row["masach"] . "</td>";
-                echo "<td>" . $row["ten_sach"] . "</td>";
-                echo "<td>" . $row["so_luong"] . "</td>";
+                echo "<td>" . $book['MaSach'] . "</td>";
+                echo "<td>" . $book['TenSach'] . "</td>";
+                echo "<td>" . $book['SoLuong'] . "</td>";
                 echo "</tr>";
             }
-        } else {
-            echo "<tr><td colspan='3'>Không có dữ liệu</td></tr>";
-        }
         ?>
     </table>
     <br>
-    <a href="Logout.php">Đăng xuất</a>
+    <a href="../Controller/logout.php">Đăng xuất</a>
 </body>
 </html>

@@ -1,27 +1,44 @@
 <?php
 session_start();
 
-require_once '/workspaces/thi-gk-web/Controller/checkLogin.php';
+$uri = "mysql://avnadmin:AVNS_xbVrhrJSx5H_CJBHpNR@mysql-331c3b88-laitienduc37-403a.f.aivencloud.com:11046/defaultdb?ssl-mode=REQUIRED";
 
-if (isset($_POST['submit'])) {
-    $username = $_POST['userName'];
-    $password = $_POST['passWord'];
+$fields = parse_url($uri);
 
-    $sql = "SELECT * FROM User WHERE TenUser = :username AND MatKhau = :password";
-    $stmt = $db->prepare($sql);
-    $stmt->execute(['username' => $username, 'password' => $password]);
-    $user = $stmt->fetch();
+// build the DSN including SSL settings
+$conn = "mysql:";
+$conn .= "host=" . $fields["host"];
+$conn .= ";port=" . $fields["port"];;
+$conn .= ";dbname=QuanLySach";
+$conn .= ";sslmode=verify-ca;sslrootcert='pri/ca.pem'";
 
-    if ($user) {
-        $_SESSION['loggedin'] = true;
-        echo "Đăng nhập thành công!";
-        exit;
+try {
+    $db = new PDO($conn, $fields["user"], $fields["pass"]);
+    if (isset($_POST['submit'])) {
+        $username = $_POST['userName'];
+        $password = $_POST['passWord'];
+    
+        $sql = "SELECT * FROM User WHERE TenUser = :username AND MatKhau = :password";
+        $stmt = $db->prepare($sql);
+        $stmt->execute(['username' => $username, 'password' => $password]);
+
+        $user = $stmt->fetch();
+    
+        if ($user) {
+            $_SESSION['loggedin'] = true;
+            header("Location: ../View/Sach.php");
+        } else {
+            echo "Đăng nhập thất bại!";
+            exit;
+        }
     } else {
-        echo "Đăng nhập thất bại!";
+        header('Location: index.php');
         exit;
     }
-} else {
-    header('Location: index.php');
-    exit;
+   
+} catch (Exception $e) {
+    echo "Error: " . $e->getMessage();
 }
+
+
 ?>
