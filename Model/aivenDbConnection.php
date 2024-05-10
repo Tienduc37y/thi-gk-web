@@ -1,6 +1,6 @@
 <?php
 
-$uri = "mysql://avnadmin:AVNS_5Ych6k-xoWyh12cOlnI@mysql-2eb27325-insourceit-0c39.h.aivencloud.com:17610/defaultdb?ssl-mode=REQUIRED";
+$uri = "mysql://avnadmin:AVNS_xbVrhrJSx5H_CJBHpNR@mysql-331c3b88-laitienduc37-403a.f.aivencloud.com:11046/defaultdb?ssl-mode=REQUIRED";
 
 $fields = parse_url($uri);
 
@@ -37,3 +37,4 @@ try {
 } catch (Exception $e) {
     echo "Error: " . $e->getMessage();
 }
+?>
